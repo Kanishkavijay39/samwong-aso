@@ -5,8 +5,8 @@ This project boilerplate is for AEM Authoring with Edge Delivery Services (aka C
 https://experienceleague.adobe.com/developer/commerce/storefront/
 
 ## Environments
-- Preview: https://main--{repo}--{owner}.aem.page/
-- Live: https://main--{repo}--{owner}.aem.live/
+- Preview: https://main--samwong-aso--asosandbox.aem.page/
+- Live: https://main--samwong-aso--asosandbox.aem.live/
 
 ## Pre-requisites
 
