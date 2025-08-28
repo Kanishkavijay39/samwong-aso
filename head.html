@@ -31,37 +31,110 @@
 <script src="/scripts/configs.js" type="module"></script>
 <script src="/scripts/commerce.js" type="module"></script>
 
-<!--/* LCP hero image priority: elevate featured magazine teaser image */-->
+<!--/* CWV Demo Suite: Toggle issues via URL params */-->
 <script>
 (function(){
-    try {
-        function elevate(img){
-            if (!img) return;
-            img.setAttribute('fetchpriority', 'high');
-            if (img.hasAttribute('loading')) img.removeAttribute('loading');
-            if (!img.decoding) img.decoding = 'async';
-            var href = img.currentSrc || img.src;
-            if (!href) return;
-            var link = document.createElement('link');
-            link.rel = 'preload';
-            link.as = 'image';
-            link.href = href;
-            if (img.srcset) link.setAttribute('imagesrcset', img.srcset);
-            if (img.sizes) link.setAttribute('imagesizes', img.sizes);
-            document.head.appendChild(link);
+    var params = new URLSearchParams(location.search);
+    
+    // 1. LCP hero optimization (default: ON, disable with ?noHeroOpt)
+    if (!params.has('noHeroOpt')) {
+        try {
+            function elevate(img){
+                if (!img) return;
+                img.setAttribute('fetchpriority', 'high');
+                if (img.hasAttribute('loading')) img.removeAttribute('loading');
+                if (!img.decoding) img.decoding = 'async';
+                var href = img.currentSrc || img.src;
+                if (!href) return;
+                var link = document.createElement('link');
+                link.rel = 'preload';
+                link.as = 'image';
+                link.href = href;
+                if (img.srcset) link.setAttribute('imagesrcset', img.srcset);
+                if (img.sizes) link.setAttribute('imagesizes', img.sizes);
+                document.head.appendChild(link);
+            }
+            var target = document.getElementById('featured-article-magazine-image');
+            if (target) { elevate(target); return; }
+            var container = document.getElementById('featured-article-magazine');
+            if (container) {
+                var img = container.querySelector('img');
+                if (img) { elevate(img); return; }
+            }
+            var firstTeaserImg = document.querySelector('.cmp-teaser__image img, .teaser img');
+            if (firstTeaserImg) elevate(firstTeaserImg);
+        } catch(e) { /* no-op */ }
+    }
+    
+    // 2. INP degradation: Heavy ContextHub simulation (?heavyCH)
+    if (params.has('heavyCH')) {
+        function blockMainThread() {
+            var start = performance.now();
+            while (performance.now() - start < 200) { // 200ms block
+                Math.sqrt(Math.random() * 1000);
+            }
         }
-        var target = document.getElementById('featured-article-magazine-image');
-        if (target) { elevate(target); return; }
-        var container = document.getElementById('featured-article-magazine');
-        if (container) {
-            var img = container.querySelector('img');
-            if (img) { elevate(img); return; }
-        }
-        var firstTeaserImg = document.querySelector('.cmp-teaser__image img, .teaser img');
-        if (firstTeaserImg) elevate(firstTeaserImg);
-    } catch(e) { /* no-op */ }
+        // Block on load
+        window.addEventListener('load', blockMainThread);
+        // Recurring blocks every 3s
+        setInterval(function(){
+            var start = performance.now();
+            while (performance.now() - start < 50) {
+                Math.sqrt(Math.random());
+            }
+        }, 3000);
+    }
+    
+    // 3. Font cache busting (?bustFonts) - forces font re-download
+    if (params.has('bustFonts')) {
+        window.addEventListener('DOMContentLoaded', function(){
+            var fontLinks = document.querySelectorAll('link[href*="font"], link[href*=".woff"]');
+            fontLinks.forEach(function(link){
+                if (link.href) {
+                    link.href = link.href + '?bust=' + Date.now();
+                }
+            });
+        });
+    }
+    
+    // 4. CLS injection (?injectCLS) - late banner causes layout shift
+    if (params.has('injectCLS')) {
+        window.addEventListener('load', function(){
+            setTimeout(function(){
+                var banner = document.createElement('div');
+                banner.style.cssText = 'background:#ff6b6b;color:white;padding:15px;text-align:center;font-weight:bold;';
+                banner.textContent = '🚨 Late-loading promotional banner!';
+                document.body.insertBefore(banner, document.body.firstChild);
+            }, 2500); // 2.5s delay
+        });
+    }
+    
+    // 5. FID/INP degradation (?slowInteract) - first click is very slow
+    if (params.has('slowInteract')) {
+        var firstClick = true;
+        document.addEventListener('click', function(){
+            if (firstClick) {
+                firstClick = false;
+                var start = performance.now();
+                while (performance.now() - start < 300) { // 300ms block
+                    Math.random();
+                }
+            }
+        }, true);
+    }
+    
 })();
 </script>
+
+<!--/* Demo URLs:
+  Clean (optimized): /
+  Heavy ContextHub: /?heavyCH
+  Font cache miss: /?bustFonts  
+  Layout shift: /?injectCLS
+  Slow interaction: /?slowInteract
+  No hero optimization: /?noHeroOpt
+  Multiple issues: /?heavyCH&injectCLS&slowInteract
+*/-->
 
 <link rel="preload" href="/placeholders.json" as="fetch" crossorigin="anonymous" />
 <link rel="modulepreload" href="/scripts/initializers/index.js" />
