@@ -31,6 +31,22 @@
 <script src="/scripts/configs.js" type="module"></script>
 <script src="/scripts/commerce.js" type="module"></script>
 
+// Light JavaScript for CWV Issue #4 - INP degradation
+window.addEventListener('load', function() {
+setTimeout(() => {
+    // Light periodic operation - keep for CWV testing
+    function lightOperation() {
+    const start = Date.now();
+    const arr = new Array(5000).fill(0);
+    arr.forEach((_, i) => Math.random() * i);
+    console.log('Light operation completed in', Date.now() - start, 'ms');
+    }
+
+    lightOperation();
+    setInterval(lightOperation, 8000); // Every 8 seconds
+}, 3000); // Wait 3 seconds after load
+});
+
 <link rel="preload" href="/placeholders.json" as="fetch" crossorigin="anonymous" />
 <link rel="modulepreload" href="/scripts/initializers/index.js" />
 <link rel="modulepreload" href="/scripts/initializers/auth.js" />
