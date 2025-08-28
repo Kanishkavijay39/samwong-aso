@@ -31,6 +31,38 @@
 <script src="/scripts/configs.js" type="module"></script>
 <script src="/scripts/commerce.js" type="module"></script>
 
+<!--/* LCP hero image priority: elevate featured magazine teaser image */-->
+<script>
+(function(){
+    try {
+        function elevate(img){
+            if (!img) return;
+            img.setAttribute('fetchpriority', 'high');
+            if (img.hasAttribute('loading')) img.removeAttribute('loading');
+            if (!img.decoding) img.decoding = 'async';
+            var href = img.currentSrc || img.src;
+            if (!href) return;
+            var link = document.createElement('link');
+            link.rel = 'preload';
+            link.as = 'image';
+            link.href = href;
+            if (img.srcset) link.setAttribute('imagesrcset', img.srcset);
+            if (img.sizes) link.setAttribute('imagesizes', img.sizes);
+            document.head.appendChild(link);
+        }
+        var target = document.getElementById('featured-article-magazine-image');
+        if (target) { elevate(target); return; }
+        var container = document.getElementById('featured-article-magazine');
+        if (container) {
+            var img = container.querySelector('img');
+            if (img) { elevate(img); return; }
+        }
+        var firstTeaserImg = document.querySelector('.cmp-teaser__image img, .teaser img');
+        if (firstTeaserImg) elevate(firstTeaserImg);
+    } catch(e) { /* no-op */ }
+})();
+</script>
+
 <link rel="preload" href="/placeholders.json" as="fetch" crossorigin="anonymous" />
 <link rel="modulepreload" href="/scripts/initializers/index.js" />
 <link rel="modulepreload" href="/scripts/initializers/auth.js" />
